@@ -1,0 +1,79 @@
+name: Review and publish renovation board
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: renovation-publish
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.event_name != 'issues' || (github.event.label.name == '采纳更新' && !github.event.issue.pull_request)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Verify change validation
+        run: node review-change.test.cjs
+      - name: Apply administrator-reviewed suggestion
+        if: github.event_name == 'issues'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node review-change.cjs
+      - name: Save approved data
+        if: github.event_name == 'issues'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add renovation.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Apply reviewed renovation suggestion'
+            git push origin HEAD:main
+          fi
+      - name: Build public files
+        run: node build-site.cjs
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      issues: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Mark published suggestion
+        if: github.event_name == 'issues'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8'));
+          const url=`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues/${e.issue.number}`;
+          const headers={Authorization:`Bearer ${process.env.GITHUB_TOKEN}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+          const check=await fetch(url,{headers}); if(!check.ok) throw Error('Issue read failed');
+          const current=await check.json();
+          if(current.body!==e.issue.body) throw Error('Issue changed after approval; publication logged in Actions');
+          const response=await fetch(url,{method:'PATCH',headers,body:JSON.stringify({state:'closed',state_reason:'completed'})});
+          if(!response.ok) throw Error('Issue close failed');
+          NODE

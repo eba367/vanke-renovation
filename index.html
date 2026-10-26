@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#f5f0e6"/>
+  <meta name="description" content="万科140㎡现代中古风装修的家庭协作看板，跟踪预算、硬装软装、家具灯具和家电卫浴。"/>
+  <title>万科装修协作看板 · 现代中古风</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="eyebrow"><span class="symbol-star">✳</span> HOME / 2027 RENOVATION</div>
+    <div class="mast-main"><div><h1>家的改造<span class="h-title-dot">.</span></h1><p class="subtitle">万科140㎡ · 现代中古风 · 家庭协作看板</p></div><div class="mast-stamp"><span>27</span><small>JAN · START</small></div></div>
+    <div class="header-foot"><span class="time-status"><i></i><span id="syncState">载入项目数据中</span></span><div class="top-actions"><button class="btn ghost compact" id="refreshBtn" type="button">↻ 刷新</button><button class="btn ghost compact" id="settingsBtn" type="button">⚙ 协作设置</button></div></div>
+  </header>
+  <nav class="nav" aria-label="项目页面">
+    <button data-tab="overview" class="nav-item active" aria-selected="true">总览</button>
+    <button data-tab="construction" class="nav-item" aria-selected="false">硬装·软装</button>
+    <button data-tab="furniture" class="nav-item" aria-selected="false">家具·灯具</button>
+    <button data-tab="appliances" class="nav-item" aria-selected="false">家电·卫浴</button>
+  </nav>
+  <main id="main" aria-live="polite"><div class="loading">加载采购清单...</div></main>
+  <footer><span>THE WARMTH OF HOME / 现代中古风</span><span id="footerVersion">V6.0</span><p>预算与产品尺寸均为初步方案，最终以现场实测、商品完整SKU及订单为准。</p></footer>
+</div>
+<dialog id="editDialog" class="dialog"><form id="editForm" onsubmit="return false"><div class="dialog-header"><div><div class="eyebrow">FAMILY REVIEW / 家人共议</div><h2 id="dialogTitle">提交修改建议</h2></div><button type="button" class="icon-btn" data-close="editDialog" aria-label="关闭">×</button></div><p class="hint" id="dialogExplain">请填写需要修改的字段，不修改的可以保持原样。提交后由负责人审核。</p><div class="form-grid" id="editFields"></div><div class="dialog-footer"><button type="button" class="btn ghost" id="previewChange">仅本机试改</button><button type="button" class="btn primary" id="sendChange">提交家人建议 ↗</button></div><p class="hint minor">“仅本机试改”不会同步给家人；GitHub协作需要先配置仓库，家人登录GitHub提交，管理员审核后会更新共享网页。</p></form></dialog>
+<dialog id="settingsDialog" class="dialog small-dialog"><div class="dialog-header"><div><div class="eyebrow">COLLABORATION / 协作</div><h2>GitHub 协作设置</h2></div><button class="icon-btn" type="button" data-close="settingsDialog">×</button></div><label class="field"><span>仓库名称 OWNER/REPO</span><input id="repoInput" placeholder="例如 family/renovation-board" autocomplete="off"/><small>部署后会自动识别 GitHub Pages 地址；本地预览可手动填。</small></label><div class="setup-list"><p>① 家人在采购卡片中填写型号、价格、测量结果和意见。</p><p>② 点击“提交家人建议”，登录 GitHub 后确认创建修改单。</p><p>③ 管理员审核 Issue，并添加 <code>采纳更新</code> 标签。</p><p>④ GitHub Actions 校验管理员权限与数据后更新并重新发布网页；家人刷新即可查看。</p></div><div class="dialog-footer"><button class="btn ghost" type="button" id="clearPreview">清除本机试改</button><button class="btn ghost" type="button" data-close="settingsDialog">取消</button><button class="btn primary" type="button" id="saveRepo">保存仓库</button></div><div class="warning small">公开 GitHub Pages 链接可以被其他人访问。请勿在公开采购数据中录入住址、电话、门锁密码或孩子姓名。</div></dialog>
+
+
+<script src="initial-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

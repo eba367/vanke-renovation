@@ -1,0 +1,13 @@
+'use strict';
+const fs = require('node:fs');
+const data = JSON.parse(fs.readFileSync('renovation.json','utf8'));
+if (!Array.isArray(data.items) || !Array.isArray(data.optional)) throw Error('Invalid data');
+const ids = [...data.items,...data.optional].map(x=>x.id);
+if (new Set(ids).size !== ids.length) throw Error('Duplicate IDs');
+const publicData = {...data}; delete publicData.appliedReviews;
+fs.mkdirSync('_site',{recursive:true});
+for (const file of ['index.html','styles.css','app.js','pegboard-a.webp','closet.webp','sofa.webp','mood-dining.webp','pegboard-b.webp','mood-living.webp','dining.webp']) fs.copyFileSync(file,`_site/${file}`);
+fs.writeFileSync('_site/renovation.json',JSON.stringify(publicData,null,2)+'\n');
+fs.writeFileSync('_site/initial-data.js','window.INITIAL_RENOVATION_DATA='+JSON.stringify(publicData).replace(/</g,'\\u003c')+';\n');
+fs.writeFileSync('_site/.nojekyll','');
+console.log(`Built ${data.items.length} items and ${data.optional.length} optional items.`);
