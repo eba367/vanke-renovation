@@ -9,7 +9,7 @@ function plain(value) { return value && typeof value === 'object' && !Array.isAr
 function validate(data, payload) {
   assert(plain(payload) && payload.kind === 'renovation_change_v1', '修改单格式错误');
   assert(typeof payload.optional === 'boolean', '项目类型错误');
-  assert(typeof payload.id === 'string' && /^[A-Z][0-9]{2}$/.test(payload.id), '项目编号错误');
+  assert(typeof payload.id === 'string' && /^[A-Z]{1,2}[0-9]{2}$/.test(payload.id), '项目编号错误');
   const items = payload.optional ? data.optional : data.items;
   const item = items.find(x => x.id === payload.id);
   assert(item, '项目不存在');

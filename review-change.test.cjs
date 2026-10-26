@@ -15,4 +15,8 @@ assert.throws(()=>readPayload('```json\n{}\n```\n```json\n{}\n```'));
 for(const permission of ['read','triage','none']) assert.equal(isReviewer(permission),false);
 for(const permission of ['write','maintain','admin']) assert.equal(isReviewer(permission),true);
 assert.equal({}.polluted,undefined);
+const real=JSON.parse(require('node:fs').readFileSync('renovation.json','utf8'));
+for (const optional of [false,true]) for (const item of optional?real.optional:real.items) {
+  assert.equal(validate(real,{kind:'renovation_change_v1',id:item.id,optional,changes:{notes:'协作校验'},base:{notes:item.notes??''}}).item.id,item.id);
+}
 console.log('Security checks passed: valid edits, stale data, money, unsafe links, forbidden fields, stages, price ranges, parsing, reviewer roles.');
